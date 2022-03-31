@@ -1,0 +1,33 @@
+﻿@using ContainerAppMvc.Models;
+@model List<ContainerAppMvc.Models.AppModel>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<link href="~/content/css/home.css" rel="stylesheet" />
+<div class="app">
+  <div class="container">
+
+    <h3 class="header" >ASP.NET MVC Workplace - SBB Yazılım Park</h3>
+    <div class="row">
+        @foreach (var app in Model)
+        {
+            <div class="col-md-auto" align="center">
+                <div class="card" style="background-color:@app.SecondaryColor">
+                    <div class="imgBx">
+                        <img src="~/images/@app.ImageName">
+                    </div>
+                    <div class="contentBx">
+                        <h2 style="color:@app.PrimaryColor">@app.Name</h2>
+                        <div class="description">
+                            <h5>@app.Description</h5>
+                        </div>
+                        <a href="@Url.Action("Index",app.AppUrl)" style="background-color:@app.PrimaryColor" >Go to app</a>
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>  
+</div>
+</div>

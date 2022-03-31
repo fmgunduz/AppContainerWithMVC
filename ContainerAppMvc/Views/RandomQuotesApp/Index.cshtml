@@ -1,0 +1,49 @@
+﻿@model QuoteModel
+@{
+    ViewData["Title"] = "RandomQuotesApp";
+}
+<link href="~/content/css/randomquotes.css" rel="stylesheet" />
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<body>
+    <div class="container">
+        <div class="card" id="primary-card">
+            <div class="card-header">
+                <h3>Random Quotes App</h3>
+            </div>
+            <div class="card-body">
+                <div class="card" id="secondary-card">
+                    <p  id="quoteText">You can generate a random quote for sharing</p>
+                    <p> <b id="author"></b> </p>
+                </div>
+                <div class="button-group">
+                    <button class="button-retweet" id="getAgainBtn"><i class="fas fa-retweet fa-lg"></i> </button>
+                    <button class="button-twitter" id="shareBtn" target="__blank"><i class="fab fa-twitter fa-lg"></i> </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+<script>
+    var getQuote = false
+    $("#getAgainBtn").click(function () {
+        $.ajax({
+            url: '/RandomQuotesApp/GetRandomQuote',
+            type: 'GET',
+            success: function (data) {
+                $("#quoteText").html(data.text);
+                data.author == null ? $(author).html('Anonymous') : $(author).html(data.author)
+                getQuote = true
+            }
+        })
+    })
+    $("#shareBtn").click(function () {
+        var text = $("#quoteText").text();
+
+        if (getQuote) {
+            window.open("https://twitter.com/intent/tweet?hashtags=YazılımPark&text=" + text, "_blank")
+        }
+
+    })
+  
+</script>

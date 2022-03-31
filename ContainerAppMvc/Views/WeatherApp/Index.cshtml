@@ -1,0 +1,174 @@
+﻿@using ContainerAppMvc.Models.WeatherModels;
+@model List<WeatherModel>
+@{
+    ViewData["Title"] = "Weather App";
+}
+<link href="~/content/css/weather.css" rel="stylesheet" />
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<div class="container">
+    <div class="row" style="margin-top:10%">
+        <div class="col-md-5">
+
+            <div class="dynamic-data">
+                <h3 class="header-text" >
+                    The Weather App
+                </h3>
+                <div class="row justify-content-center">
+
+                    <div class="input-container">
+                        <input id="cityInput"
+                               type="text"
+                               placeholder="Enter a city..." />
+                        <button type="submit" id="searchButton">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <div class="card"
+                         style="height: 360px; background-color: #4B515D; color: white;width: 400px;">
+                      
+                            <div class="card-body p-4" id="dynamicCardBody" style="visibility:hidden">
+                                <div class="card-header">
+                                    <h6 id="dynamicCityName" class="flex-grow-1"></h6>
+                                    <h6 id="dynamicCountry"></h6>
+                                </div>
+
+                                <div class="primary-weather-info">
+                                    <h6 class="display-4" id="dynamicTemp"></h6>
+                                    <span id="dynamicDescription" class="small"></span>
+                                </div>
+
+                                <div class="secondary-weather-info">
+                                    <div class="weather-info-icon">
+                                        <div>
+                                            <i class="fas fa-wind fa-fw"></i>
+                                            <span class="ms-1" id="dynamicWindSpeed"></span>
+                                        </div>
+                                        <div>
+                                            <i class="fas fa-tint fa-fw"></i>
+                                            <span class="ms-1" id="dynamicHumidity"></span>
+                                        </div>
+                                        <div>
+                                            <i class="fas fa-sun fa-fw"></i>
+                                            <span id="dynamicSunrise" class="ms-1">
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <img id="dynamicIconPath" src=""
+                                             width="120" />
+                                    </div>
+                                </div>
+                            </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+      
+            <div class="col-md-7">
+                <div class="row">
+                    @foreach (var mainCity in Model)
+                    {
+                        <div class="col-md-6">
+                            <div class="card" >
+                                <div class="card-body p-4">
+                                    <div class="card-header">
+                                        <h6 class="flex-grow-1">@mainCity.Name</h6>
+                                        <h6>@mainCity.Sys.Country</h6>
+                                    </div>
+
+                                    <div class="primary-weather-info">
+                                        <h6 class="display-4">
+                                            @mainCity.Main.Temp °C
+                                        </h6>
+                                        <span class="small">
+                                            @mainCity.Weather[0].Description
+                                        </span>
+                                    </div>
+
+                                    <div class="secondary-weather-info">
+                                        <div class="weather-info-icon">
+                                            <div>
+                                                <i class="fas fa-wind fa-fw"></i>
+                                                <span class="ms-1">
+                                                    @mainCity.Wind.Speed m/s
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <i class="fas fa-tint fa-fw"></i>
+                                                <span class="ms-1">
+                                                    @mainCity.Main.Humidity %
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <i class="fas fa-sun fa-fw"></i>
+                                                <span class="ms-1">
+                                                    @mainCity.Sys.FormattedTime
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <img src="@mainCity.Weather[0].Icon"
+                                                 width="120" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+
+      
+    </div>
+</div>
+<script>
+
+    $("#searchButton").click(function () {
+
+        var cityInput = $("#cityInput").val();
+
+
+        $.ajax({
+            url: '/WeatherApp/GetWeatherData?cityName=' + cityInput,
+            contentType: 'application/json; charset=utf-8',
+            type: 'POST',
+            success: function (data) {
+                var iconPath = "http://openweathermap.org/img/wn/@@2x.pn"
+                if (data.id!=0) {
+                    $("#dynamicCityName").html(data.name)
+                    $("#dynamicCountry").html(data.sys.country)
+                    $("#dynamicDescription").html(data.weather[0].description)
+                    $("#dynamicWindSpeed").html(data.wind.speed + ' m/s')
+                    $("#dynamicHumidity").html('% ' + data.main.humidity)
+                    $("#dynamicTemp").html(data.main.temp + ' °C')
+                    $("#dynamicSunrise").html(formatSunrise(data.sys.sunrise))
+                    $("#dynamicIconPath").attr('src', data.weather[0].icon)
+                    $("#dynamicCardBody").css('visibility','visible')
+                }
+
+
+            }
+        });
+    })
+    $("#cityInput").on('keyup', (e) => {
+        if (e.keyCode == 13) {
+            $("#searchButton").click();
+        }
+    })
+    function formatSunrise(unixTimeStamp) {
+        var date = new Date(unixTimeStamp * 1000);
+        // Hours part from the timestamp
+        var hours = date.getHours();
+        // Minutes part from the timestamp
+        var minutes = "0" + date.getMinutes();
+        // Seconds part from the timestamp
+        var seconds = "0" + date.getSeconds();
+
+        // Will display time in 10:30:23 format
+        var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+        return formattedTime;
+    }
+</script>

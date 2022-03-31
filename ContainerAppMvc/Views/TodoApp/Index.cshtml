@@ -1,0 +1,84 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "TodoApp";
+}
+@model List<TodoModel>
+<link href="~/content/css/todo.css" rel="stylesheet" />
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2>Todo List</h2>
+            </div>
+            <div class="card-body">
+                <ul class="todo-list" id="todo-list">
+                    @foreach (var todoModel in Model)
+                    {
+                        var todoItemClass = todoModel.IsDone ? "todo-item" : "todo-item done";
+                        var todoItemIconClass = !(todoModel.IsDone) ? "fas fa-square" : "fas fa-check-square";
+                        <li class="@todoItemClass" >
+                            @todoModel.TodoContent
+                            <div class="i-group">
+                                <i class="fas fa-trash-alt" type="button" id="@todoModel.Id"></i>
+                                <i class="@todoItemIconClass" type="button" id="@todoModel.Id"></i>
+                            </div>
+
+                        </li>
+                    }
+                </ul>
+                
+            </div>
+            <div class="card-footer">
+                    <input  id="todo-input"
+                           placeholder="Add new todo...">
+
+                <button id="todo-button" type="submit" ><i class="fas fa-plus"></i></button>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    $("#todo-button").click(function () {
+        let todoModel = { TodoContent: $("#todo-input").val(), IsDone: false }
+        $.ajax({
+            type: "POST",
+            url: "/TodoApp/Add",
+            data: todoModel,
+            success: function (data) {
+                location.reload(true);
+            }
+        })
+    })
+    $("#todo-input").on('keyup', (e) => {
+        if (e.keyCode == 13) {
+            $("#todo-button").click();
+        }
+    })
+    $(".fa-trash-alt").click(function () {
+        let todoModel = { Id: this.id }
+        $.ajax({
+            type: 'POST',
+            url: '/TodoApp/Delete',
+            data: todoModel,
+            success: function () {
+                location.reload(true)
+            }
+        })
+    })
+    $(".fa-square,.fa-check-square").click(function () {
+        let todoModel = { Id: this.id }
+        $.ajax({
+            type: 'POST',
+            url: '/TodoApp/Update',
+            data: todoModel,
+            success: function () {
+                location.reload()
+            }
+        })
+    })
+
+</script>
